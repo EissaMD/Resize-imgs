@@ -3,6 +3,7 @@ import os
 from os import listdir
 import tkinter as tk
 from tkinter.ttk import *
+from tkinter import  filedialog 
 
 class App(tk.Tk):
     WIDTH = 400
@@ -22,23 +23,32 @@ class App(tk.Tk):
         path_frame.columnconfigure((0,2),weight=1 )
         path_frame.columnconfigure(1,weight=10)
         Label(path_frame,text=f"File Path :" ).grid(row=0, column=0,  sticky = "we" , padx=(5,0) , pady=10 )
-        path_entry = Entry(path_frame)
-        path_entry.grid(row=0, column=1,sticky="we")
-        Button(path_frame, text="Select Folder").grid(row=0, column=2 , padx=(0,5))
+        self.path_entry = Entry(path_frame)
+        self.path_entry.grid(row=0, column=1,sticky="we")
+        Button(path_frame, text="Select Folder" , command=self.select_btn).grid(row=0, column=2 , padx=(0,5))
         # ask for image dimensions
         dimensions_frame = Frame(self)
         dimensions_frame.grid(row=2, column=0 , sticky = "we")
         Label(dimensions_frame,text=f"Image size :  " ).pack(side="left")
         entry_w = Entry(dimensions_frame , width=10)
         entry_w.pack(side="left")
+        entry_w.insert(tk.END,"1600")
         Label(dimensions_frame,text=f"X" ).pack(side="left")
         entry_h = Entry(dimensions_frame , width=10)
         entry_h.pack(side="left")
+        entry_h.insert(tk.END,"900")
+        
         # show image names in a text box
         textbox = tk.Text(self , bg="gray90" , height=10)
         textbox.grid(row=3, column=0 ,sticky="nswe" , pady=10, padx=10)
         Button(self, text="Re-size").grid(row=4, column=0 )
         
+    def select_btn(self):
+        self.folder_path = filedialog.askdirectory()
+        self.path_entry.delete(0, tk.END)
+        self.path_entry.insert(tk.END,self.folder_path)
+            
+            
 def resize():    
     imgs_path = r"."
     img_size = (200 , 200)
