@@ -4,6 +4,7 @@ from os import listdir
 import tkinter as tk
 from tkinter.ttk import *
 from tkinter import  filedialog 
+import threading
 
 class App(tk.Tk):
     WIDTH = 400
@@ -30,41 +31,47 @@ class App(tk.Tk):
         dimensions_frame = Frame(self)
         dimensions_frame.grid(row=2, column=0 , sticky = "we")
         Label(dimensions_frame,text=f"Image size :  " ).pack(side="left")
-        entry_w = Entry(dimensions_frame , width=10)
-        entry_w.pack(side="left")
-        entry_w.insert(tk.END,"1600")
+        self.entry_w = Entry(dimensions_frame , width=10)
+        self.entry_w.pack(side="left")
+        self.entry_w.insert(tk.END,"1600")
         Label(dimensions_frame,text=f"X" ).pack(side="left")
-        entry_h = Entry(dimensions_frame , width=10)
-        entry_h.pack(side="left")
-        entry_h.insert(tk.END,"900")
+        self.entry_h = Entry(dimensions_frame , width=10)
+        self.entry_h.pack(side="left")
+        self.entry_h.insert(tk.END,"900")
         
         # show image names in a text box
-        textbox = tk.Text(self , bg="gray90" , height=10)
-        textbox.grid(row=3, column=0 ,sticky="nswe" , pady=10, padx=10)
-        Button(self, text="Re-size").grid(row=4, column=0 )
+        self.textbox = tk.Text(self , bg="gray90" , height=10)
+        self.textbox.grid(row=3, column=0 ,sticky="nswe" , pady=10, padx=10)
+        Button(self, text="Re-size", command=self.resize_btn).grid(row=4, column=0 )
         
     def select_btn(self):
         self.folder_path = filedialog.askdirectory()
         self.path_entry.delete(0, tk.END)
         self.path_entry.insert(tk.END,self.folder_path)
-            
-            
-def resize():    
-    imgs_path = r"."
-    img_size = (200 , 200)
-
-    output_folder = imgs_path+r"\output"
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-
-    # get the path or directory
-    for img_name in os.listdir(imgs_path):
-        # check if the image end swith png or jpg or jpeg
-        if img_name.endswith(".png") or img_name.endswith(".jpg"):
-            image = Image.open(imgs_path+"\\"+img_name)
-            new_image = image.resize(img_size)
-            new_image.save(output_folder+"\\"+img_name)
-
+    
+    def resize_btn(self):
+        w= int(self.entry_w.get())
+        h= int(self.entry_h.get())
+        img_size = (w , h)
+        output_folder = self.folder_path+r"/output"
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+        def updating():
+            # get the path or directory
+            for img_name in os.listdir(self.folder_path):
+                # check if the image end swith png or jpg or jpeg
+                if img_name.endswith(".png") or img_name.endswith(".jpg") or img_name.endswith(".jpeg"):
+                    image = Image.open(self.folder_path+"/"+img_name)
+                    new_image = image.resize(img_size)
+                    new_image.save(output_folder+"/"+img_name)
+                    line = output_folder+"/"+img_name+" successfully created \n"
+                    self.textbox.insert(tk.END, line)
+                    self.textbox.see(tk.END)
+            line = "\nVisit: "+output_folder
+            self.textbox.insert(tk.END, line)
+            self.textbox.see(tk.END)
+        threading.Thread(target=updating).start()
+        
 
 if __name__ == "__main__":
     app = App()
